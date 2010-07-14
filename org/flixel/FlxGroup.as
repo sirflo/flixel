@@ -18,7 +18,6 @@ package org.flixel
 		 * Helpers for moving/updating group members.
 		 */
 		protected var _last:FlxPoint;
-		protected var _first:Boolean;
 		/**
 		 * Helpers for sorting members.
 		 */
@@ -35,7 +34,6 @@ package org.flixel
 			solid = false;
 			members = new Array();
 			_last = new FlxPoint();
-			_first = true;
 		}
 		
 		/**
@@ -319,23 +317,7 @@ package org.flixel
 			}
 			return o;
 		}
-		
-		/**
-		 * Internal function, helps with the moving/updating of group members.
-		 */
-		protected function saveOldPosition():void
-		{
-			if(_first)
-			{
-				_first = false;
-				_last.x = 0;
-				_last.y = 0;
-				return;
-			}
-			_last.x = x;
-			_last.y = y;
-		}
-		
+				
 		/**
 		 * Internal function that actually goes through and updates all the group members.
 		 * Depends on <code>saveOldPosition()</code> to set up the correct values in <code>_last</code> in order to work properly.
@@ -351,6 +333,9 @@ package org.flixel
 				mx = x - _last.x;
 				my = y - _last.y;
 			}
+			_last.x = x;
+			_last.y = y;
+			
 			var i:uint = 0;
 			var o:FlxObject;
 			var ml:uint = members.length;
@@ -393,7 +378,6 @@ package org.flixel
 		 */
 		override public function update():void
 		{
-			saveOldPosition();
 			updateMotion();
 			updateMembers();
 			updateFlickering();
@@ -484,49 +468,8 @@ package org.flixel
 		 */
 		override public function reset(X:Number,Y:Number):void
 		{
-			saveOldPosition();
 			super.reset(X,Y);
-			var mx:Number;
-			var my:Number;
-			var moved:Boolean = false;
-			if((x != _last.x) || (y != _last.y))
-			{
-				moved = true;
-				mx = x - _last.x;
-				my = y - _last.y;
-			}
-			var i:uint = 0;
-			var o:FlxObject;
-			var ml:uint = members.length;
-			while(i < ml)
-			{
-				o = members[i++] as FlxObject;
-				if((o != null) && o.exists)
-				{
-					if(moved)
-					{
-						if(o._group)
-							o.reset(o.x+mx,o.y+my);
-						else
-						{
-							o.x += mx;
-							o.y += my;
-							if(solid)
-							{
-								o.colHullX.width += ((mx>0)?mx:-mx);
-								if(mx < 0)
-									o.colHullX.x += mx;
-								o.colHullY.x = x;
-								o.colHullY.height += ((my>0)?my:-my);
-								if(my < 0)
-									o.colHullY.y += my;
-								o.colVector.x += mx;
-								o.colVector.y += my;
-							}
-						}
-					}
-				}
-			}
+			updateMembers();
 		}
 		
 		/**
