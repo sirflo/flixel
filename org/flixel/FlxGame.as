@@ -416,7 +416,7 @@ package org.flixel
 			_console = new FlxConsole(_gameXOffset,_gameYOffset,_zoom);
 			if(!FlxG.mobile)
 				addChild(_console);
-			var vstring:String = FlxG.LIBRARY_NAME+" v"+FlxG.LIBRARY_MAJOR_VERSION+"."+FlxG.LIBRARY_MINOR_VERSION;
+			var vstring:String = FlxVersion.LIBRARY_NAME+" v"+FlxVersion.LIBRARY_MAJOR_VERSION+"."+FlxVersion.LIBRARY_MINOR_VERSION;
 			if(FlxG.debug)
 				vstring += " [debug]";
 			else

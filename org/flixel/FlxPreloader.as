@@ -8,6 +8,7 @@ package org.flixel
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
+	import flash.events.IOErrorEvent;
 	import flash.events.MouseEvent;
 	import flash.net.URLRequest;
 	import flash.net.navigateToURL;
@@ -87,19 +88,8 @@ package org.flixel
             stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 			
-			//Check if we are on debug or release mode and set _DEBUG accordingly
-            try
-            {
-                throw new Error("Setting global debug flag...");
-            }
-            catch(e:Error)
-            {
-                var re:RegExp = /\[.*:[0-9]+\]/;
-                FlxG.debug = re.test(e.getStackTrace());
-            }
-			
 			var tmp:Bitmap;
-			if(!FlxG.debug && (myURL != null) && (root.loaderInfo.url.indexOf(myURL) < 0))
+			if(!FlxVersion.debugMode && (myURL != null) && (root.loaderInfo.url.indexOf(myURL) < 0))
 			{
 				tmp = new Bitmap(new BitmapData(stage.stageWidth,stage.stageHeight,true,0xFFFFFFFF));
 				addChild(tmp);
@@ -128,6 +118,7 @@ package org.flixel
 			}
 			_init = false;
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
+			loaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
 		}
 		
 		private function goToMyURL(event:MouseEvent=null):void
@@ -150,6 +141,7 @@ package org.flixel
             if((framesLoaded >= totalFrames) && (time > _min))
             {
                 removeEventListener(Event.ENTER_FRAME, onEnterFrame);
+                loaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, onIOError);
                 nextFrame();
                 var mainClass:Class = Class(getDefinitionByName(className));
 	            if(mainClass)
@@ -167,6 +159,13 @@ package org.flixel
             	update(percent);
 			}
         }
+        
+        /**
+         * Listening for IO errors prevents nasty error dialog from popping up
+         * when users navigate to another site while game is still loading.
+         * (Errors only show in debug players - still not pretty.)
+         */
+        private function onIOError(event : IOErrorEvent) : void {};
 		
 		/**
 		 * Override this to create your own preloader objects.
@@ -175,7 +174,7 @@ package org.flixel
 		protected function create():void
 		{
 			_min = 0;
-			if(!FlxG.debug)
+			if(!FlxVersion.debugMode)
 				_min = minDisplayTime*1000;
 			_buffer = new Sprite();
 			_buffer.scaleX = 2;
@@ -242,7 +241,7 @@ package org.flixel
 		protected function update(Percent:Number):void
 		{
 			_bmpBar.scaleX = Percent*(_width-8);
-			_text.text = "FLX v"+FlxG.LIBRARY_MAJOR_VERSION+"."+FlxG.LIBRARY_MINOR_VERSION+" "+FlxU.floor(Percent*100)+"%";
+			_text.text = "FLX v"+FlxVersion.LIBRARY_MAJOR_VERSION+"."+FlxVersion.LIBRARY_MINOR_VERSION+" "+Math.floor(Percent*100)+"%";
 			_text.setTextFormat(_text.defaultTextFormat);
 			if(Percent < 0.1)
 			{
@@ -251,7 +250,7 @@ package org.flixel
 			}
 			else if(Percent < 0.15)
 			{
-				_logoGlow.alpha = FlxU.random();
+				_logoGlow.alpha = Math.random();
 				_logo.alpha = 0;
 			}
 			else if(Percent < 0.2)
@@ -262,7 +261,7 @@ package org.flixel
 			else if(Percent < 0.25)
 			{
 				_logoGlow.alpha = 0;
-				_logo.alpha = FlxU.random();
+				_logo.alpha = Math.random();
 			}
 			else if(Percent < 0.7)
 			{

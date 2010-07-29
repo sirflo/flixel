@@ -14,22 +14,6 @@ package org.flixel
 	public class FlxG
 	{
 		/**
-		 * If you build and maintain your own version of flixel,
-		 * you can give it your own name here.  Appears in the console.
-		 */
-		static public var LIBRARY_NAME:String = "flixel";
-		/**
-		 * Assign a major version to your library.
-		 * Appears before the decimal in the console.
-		 */
-		static public var LIBRARY_MAJOR_VERSION:uint = 2;
-		/**
-		 * Assign a minor version to your library.
-		 * Appears after the decimal in the console.
-		 */
-		static public var LIBRARY_MINOR_VERSION:uint = 43;
-
-		/**
 		 * Internal tracker for game object (so we can pause & unpause)
 		 */
 		static protected var _game:FlxGame;
@@ -39,7 +23,7 @@ package org.flixel
 		static protected var _pause:Boolean;
 		/**
 		 * Whether you are running in Debug or Release mode.
-		 * Set automatically by <code>FlxFactory</code> during startup.
+		 * Set automatically by <code>FlxGame</code> during startup.
 		 */
 		static public var debug:Boolean;
 		/**
@@ -680,6 +664,8 @@ package org.flixel
 		 */
 		static internal function setGameData(Game:FlxGame,Width:uint,Height:uint,Zoom:uint):void
 		{
+			debug = FlxVersion.debugMode;
+			
 			_game = Game;
 			_cache = new Object();
 			width = Width;
@@ -719,7 +705,7 @@ package org.flixel
 
 			FlxU.setWorldBounds(0,0,FlxG.width,FlxG.height);
 		}
-
+		
 		/**
 		 * Internal function that updates the camera and parallax scrolling.
 		 */
